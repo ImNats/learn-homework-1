@@ -13,6 +13,7 @@
 
 """
 import logging
+import ephem
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
@@ -36,10 +37,56 @@ def greet_user(update, context):
     update.message.reply_text(text)
 
 
-def talk_to_me(update, context):
-    user_text = update.message.text
-    print(user_text)
+def ask_planet(update, context):
+    text = '''Классно!!! Расположение какой планеты ты хочешь узнать?
+    Вот какие планеты я знаю:
+        Mercury
+        Venus
+        Mars
+        Jupiter
+        Saturn
+        Uranus
+        Neptune
+        Pluto
+        Sun
+        Moon
+    Введи в отчет название планеты на английском языке '''
     update.message.reply_text(text)
+
+
+def find_planet(update, context):
+    user_planet = update.message.text
+    planet_not_found = False
+
+    if user_planet == 'Mercury':
+        planet_id=ephem.Mercury('2022/09/19')
+    elif user_planet == 'Venus':
+        planet_id=ephem.Venus('2022/09/19')
+    elif user_planet == 'Mars':
+        planet_id=ephem.Mars('2022/09/19')
+    elif user_planet == 'Jupiter':
+        planet_id=ephem.Jupiter('2022/09/19')
+    elif user_planet == 'Saturn':
+        planet_id=ephem.Saturn('2022/09/19')
+    elif user_planet == 'Uranus':
+        planet_id=ephem.Uranus('2022/09/19')
+    elif user_planet == 'Neptune':
+        planet_id=ephem.Neptune('2022/09/19')
+    elif user_planet == 'Pluto':
+        planet_id=ephem.Pluto('2022/09/19')
+    elif user_planet == 'Sun':
+        planet_id=ephem.Sun('2022/09/19')
+    elif user_planet == 'Moon':
+        planet_id=ephem.Moon('2022/09/19')
+    else:
+        planet_not_found = True
+
+    if planet_not_found:
+        text_to_user = 'Попробуй еще раз, я тебя не понял'
+    else:
+        text_to_user = 'Она была в созвездии '+ephem.constellation(planet_id)[1]
+
+    return text_to_user
 
 
 def main():
@@ -47,7 +94,8 @@ def main():
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler("start", greet_user))
-    dp.add_handler(MessageHandler(Filters.text, talk_to_me))
+    dp.add_handler(CommandHandler("planet", ask_planet))
+    dp.add_handler(MessageHandler(Filters.text, find_planet))
 
     mybot.start_polling()
     mybot.idle()
